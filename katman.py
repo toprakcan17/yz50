@@ -15,7 +15,7 @@ biases = [1,-2,-0.7]
 output_activations = [0,0,0]
 
 for i,j in enumerate(output_activations):
-    sum = int()
+    sum = float()
     for k,l in enumerate(input_activations):
         sum+=weights[i][k]*l
     output_activations[i]=sigmoid(sum+biases[i])
