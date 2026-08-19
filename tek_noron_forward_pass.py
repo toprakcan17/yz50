@@ -1,12 +1,7 @@
-import math
-
-def sigmoid(x):
-    return 1/(1+math.exp(-x))
-
 input_activation = 0
 weight = 0
 bias = 0
 
-output_activation = sigmoid(input_activation * weight + bias)
+output_activation = max(input_activation * weight + bias, 0)
 
 print(output_activation)
