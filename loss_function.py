@@ -1,8 +1,8 @@
 from math import pow
-input_activations = [0.2,0.5,0.3]
+input_activations = [0.25,0.5,0.3]
 weights = [
     [0.1,-0.15,0.2],
-    [2,1,0.3],
+    [2,0.65,-0.3],
     [1.4,-0.12,-1.1]
     ]
 biases = [1,-2,-0.7]
