@@ -16,7 +16,6 @@ for i,j in enumerate(output_activations):
         sum+=weights[i][k]*l
     output_activations[i]=max(sum+biases[i],0)
 
-
 loss = float()
 for i,_ in enumerate(output_activations):
     loss+=pow(output_activations[i]-truth_samples[i], 2)

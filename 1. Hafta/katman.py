@@ -1,4 +1,7 @@
-input_activations = [0.25,0.5,0.3]
+input_activations = [
+    0.25,
+    0.5,
+    0.3]
 weights = [
     [0.1,-0.15,0.2],
     [0.2,0.4,-0.3],  
