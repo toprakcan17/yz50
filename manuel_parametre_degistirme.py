@@ -6,7 +6,7 @@ weights = [
     [2,0.65,-0.3],
     [1.4,-0.12,-1.1]
     ]
-biases = [1,-2,-0.7]
+biases = [3,-2,1]
 output_activations = [0,0,0]
 truth_samples = [0,1,0]
 
@@ -24,8 +24,16 @@ def loss_function(output,truth):
             loss+=pow(j-truth[i], 2)
     return loss
 
-for i in range(1,15):
+def numerical_derivative(i,j,w):
+    a = loss_function(compute_neural_network(input_activations,output_activations,w,biases), truth_samples)
+    k=0.00001
+    w[i][j]+=k
+    b = loss_function(compute_neural_network(input_activations,output_activations,w,biases), truth_samples)
+    (b-a)/k
+
+for i in range(1,25):
     print("Loss: {}".format(loss_function(compute_neural_network(input_activations,output_activations,weights,biases), truth_samples)))
-    weights[1][1]+=0.5 # Değiştirilecek parametreyi ve değişim miktarı buradan ayarlanıyor
+    weights[2][1]-=0.1 # Değiştirilecek parametreyi ve değişim miktarı buradan ayarlanıyor
+    weights[0][1]-=0.1
 
 
