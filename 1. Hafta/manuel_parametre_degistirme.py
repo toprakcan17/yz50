@@ -1,7 +1,7 @@
 from math import pow
 import matplotlib.pyplot as plt
 
-input_activations = [0.25,0.5,0.3]
+input_activations = [0.25,-0.5,0.3]
 weights = [
     [0.1,-0.15,0.2],
     [2,0.65,-0.3],
@@ -28,11 +28,11 @@ def loss_function(output,truth):
 parameter_change = []
 loss_change = []
 
-for i in range(1,25):
+for i in range(1,50):
     print("Loss: {}".format(loss_function(compute_neural_network(input_activations,output_activations,weights,biases), truth_samples)))
-    weights[2][1]-=0.1 # Değiştirilecek parametreyi ve değişim miktarı buradan ayarlanıyor
+    weights[1][1]+=0.1 # Değiştirilecek parametreyi ve değişim miktarı buradan ayarlanıyor
     loss_change.append(loss_function(compute_neural_network(input_activations,output_activations,weights,biases), truth_samples))
-    parameter_change.append(weights[2][1])
+    parameter_change.append(weights[1][1])
 
 plt.plot(parameter_change,loss_change)
 plt.show()
