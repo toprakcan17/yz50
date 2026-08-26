@@ -62,12 +62,4 @@ d = c + e
 f = Value(-2)
 L = f * d
 
-L.grad = 1
-f.grad = d.data * L.grad
-d.grad = f.data * L.grad
-c.grad = d.grad
-e.grad = d.grad
-a.grad = c.grad * b.data
-b.grad = c.grad * a.data
-
 draw_dot(L).render('graph', view=True)
