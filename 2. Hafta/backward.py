@@ -1,12 +1,15 @@
 from graphviz import Digraph
 from math import tanh
 
+
+ 
 class Value:
-    def __init__(self, data, prev=None, op='', label=''):
+    def __init__(self, data, prev=(), op='', label=''):
         self.data = data
         self.prev = prev
         self.grad = 0
         self.op = op
+        self._backward = lambda: None
         self.label = label
         self.id = str(id(self))
 
@@ -14,13 +17,37 @@ class Value:
         return f'Value({self.data}, {self.op}, {self.id})'
 
     def __add__(self, target):
-        return Value(self.data + target.data, (self, target), '+')
-
+        result = Value(self.data+target.data, (self, target), '+')
+        def backward():
+           self.grad += result.grad
+           target.grad += result.grad
+        result._backward = backward
+        return result
     def __mul__(self, target):
-        return Value(self.data * target.data, (self, target), '*')
+        result = Value(self.data*target.data, (self, target), '*')
+        def backward():
+           self.grad += target.data*result.grad
+        result._backward = backward
+        return result
     def tanh(self):
-        return Value(tanh(self.data), (self,), 'tanh')
-
+        result =  Value(tanh(self.data), (self,), 'tanh')
+        def backward():
+           self.grad = 1 - tanh(self.data)**2 * result.grad
+        result._backward = backward
+        return result
+    def backward(self):
+      topological_order = []
+      visited = set()
+      def topological_sort(node):
+        if node in visited: return
+        visited.add(node)
+        for j in node.prev:
+            topological_sort(j)
+        topological_order.append(node)
+        
+      topological_sort(self)
+      for i in topological_order[::-1]:
+        i._backward()
 def trace(root):
   # builds a set of all nodes and edges in a graph
   nodes, edges = set(), set()
@@ -68,15 +95,7 @@ a = a1+a2
 b = a+bias
 c = b.tanh() 
 c.grad = 1
-b.grad = 1 - tanh(b.data)**2
-a.grad = 1*b.grad
-bias.grad = 1*b.grad
-a1.grad = 1*a.grad
-a2.grad = 1*a.grad
-x1.grad = w1.data*a1.grad
-w1.grad = x1.data*a1.grad
-x2.grad = w2.data*a2.grad
-w2.grad = x2.data*a2.grad
+c.backward()
 
 
 
