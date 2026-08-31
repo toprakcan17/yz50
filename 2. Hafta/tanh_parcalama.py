@@ -126,9 +126,8 @@ method = input("Tercih edilen yontemi giriniz: ('pytorch', 'sayisal turev', 'bac
 compute()
 if method == 'backward':
   e.backward()
-  print(w1.grad)
+  print(x2.grad)
 elif method == 'pytorch':
-  print("sdkjdsadf")
   _x1 = torch.Tensor([2.0]).double()                ; _x1.requires_grad = True
   _x2 = torch.Tensor([0.0]).double()                ; _x2.requires_grad = True
   _w1 = torch.Tensor([-3.0]).double()               ; _w1.requires_grad = True
@@ -145,7 +144,7 @@ elif method == 'pytorch':
 elif method == 'sayisal turev':
   aaa = e.data
   h = 0.0001
-  w1.data += h
+  x2.data += h
   compute()
   aaaa = e.data
   grad = (aaaa-aaa)/h

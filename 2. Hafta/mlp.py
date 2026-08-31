@@ -134,10 +134,10 @@ def gradient_descent(abc, step_size):
       parameter.data-=parameter.grad*step_size
   for parameter in abc.parameters():
     parameter.grad = 0
-step_count = 30
+step_count = 150
 for i in range(step_count):
    loss = loss_function(training_data)
    loss.grad = 1
    loss.backward()
    print(f"Step {i+1}: {loss.data:.4f}")
-   gradient_descent(a, 0.05)
+   gradient_descent(a, 0.5)

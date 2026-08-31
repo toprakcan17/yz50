@@ -79,6 +79,4 @@ x2.grad = w2.data*a2.grad
 w2.grad = x2.data*a2.grad
 
 
-
 draw_dot(c).render('graph', view=True)
-
