@@ -20,5 +20,15 @@ for i in names:
         next_char = i[j+1]
         counts[encode_char(k)][encode_char(next_char)] += 1
 
-plt.imshow(counts)
-plt.waitforbuttonpress()
+
+normalised = counts.float() / counts.sum(1, keepdim=True)
+prev_char = '.'
+
+for i in range(int(input("Kac isim uretmek istersiniz?"))):
+    word = str()
+    while True:
+        new_char = decode_char(torch.multinomial(normalised[encode_char(prev_char)],1))
+        if new_char == '.': break
+        prev_char = new_char
+        word+=new_char
+    print(word)

@@ -20,5 +20,19 @@ for i in names:
         next_char = i[j+1]
         counts[encode_char(k)][encode_char(next_char)] += 1
 
-plt.imshow(counts)
-plt.waitforbuttonpress()
+counts+=1
+print(counts.shape)
+normalised = counts.float() / counts.sum(1, keepdim=True)
+char_count = 0
+negative_log_likelihood = float()
+
+for i in names[:3]:
+    i = f'.{i}.'
+
+    for j,k in enumerate(i[:-1]):
+        next_char = i[j+1]
+        prob = normalised[encode_char(k),encode_char(next_char)]
+        negative_log_likelihood-=prob.log()
+        char_count+=1
+
+print(negative_log_likelihood/char_count)
