@@ -27,7 +27,7 @@ normalised = counts.float() / counts.sum(1, keepdim=True)
 char_count = 0
 negative_log_likelihood = float()
 
-for i in names[:3]:
+for i in names:
     i = f'.{i}.'
 
     for j,k in enumerate(i[:-1]):
