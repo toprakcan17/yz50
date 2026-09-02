@@ -2,11 +2,12 @@ import torch
 from torch.nn.functional import one_hot
 import matplotlib.pyplot as plt
 
-LEARNING_STEP_COUNT = 50
-LEARNING_STEP_SIZE = 10
+LEARNING_STEP_COUNT = 500
+LEARNING_STEP_SIZE = 100
 DEV_STEP_SIZE = .125
+TEMPERATURE = 0
 
-with open('/Users/macbookair/Documents/yz50/3. Hafta/names.txt') as names_file:
+with open('/Users/macbookair/Documents/yz50/3. Hafta/isimler.txt') as names_file:
     names = names_file.read().splitlines()
     names = [name for i in names for name in i.split()]
 
@@ -83,7 +84,18 @@ def tune_smoothing(x,y,weights,step_size):
         prev_loss = loss
         smoothing+=step_size
 
+def generate_word(weights,smoothing):
+    prev_chars = '..' 
+    word = ''
+    while True:
+        probs = forward_pass(torch.tensor([encode_two_chars(prev_chars)]), weights, smoothing=smoothing)
+        new_char = decode_char(torch.multinomial(probs,1,replacement=False))
+        if new_char == '.': return word
+        word+=new_char
+        prev_chars = prev_chars[1] + new_char
 trained_model = train_model(xtrain,ytrain,W,LEARNING_STEP_SIZE,LEARNING_STEP_COUNT)
 smoothing = tune_smoothing(xdev,ydev,trained_model,DEV_STEP_SIZE)
 loss = compute_loss(forward_pass(xtest,trained_model,smoothing=smoothing),ytest).data
 print(f'Loss: {loss}')
+for i in range(15):
+    print(generate_word(trained_model,smoothing))
