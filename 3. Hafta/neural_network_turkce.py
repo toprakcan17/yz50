@@ -2,12 +2,13 @@ import torch
 from torch.nn.functional import one_hot
 import matplotlib.pyplot as plt
 
-counts = torch.zeros((27,27), dtype=torch.int16)
-with open('/Users/macbookair/Documents/yz50/3. Hafta/names.txt') as names_file:
+with open('/Users/macbookair/Documents/yz50/3. Hafta/isimler.txt') as names_file:
     names = names_file.read().splitlines()
 
 chars = sorted(list(set(''.join(names))))
-chars.insert(26, '.')
+chars.append('.')
+
+counts = torch.zeros((len(chars),len(chars)), dtype=torch.int16)
 
 def encode_char(char):
     return chars.index(char)
@@ -39,13 +40,13 @@ for i in names:
 xs = torch.tensor(xs)
 ys = torch.tensor(ys)
 
-W = torch.randn(27,27, requires_grad=True)
+W = torch.randn(len(chars),len(chars), requires_grad=True)
 
 learning_step = 10
 step_count = 100
 losses = []
 for i in range(step_count):
-    x_one_hot = one_hot(xs, num_classes=27).float()
+    x_one_hot = one_hot(xs, num_classes=len(chars)).float()
     act = x_one_hot @ W
     fake_counts = act.exp()
     normalised_counts = fake_counts/fake_counts.sum(1, keepdim=True)
@@ -55,5 +56,19 @@ for i in range(step_count):
     W.data -= W.grad * learning_step
     losses.append(loss.data)
     print(f'Step: {i+1} - Loss: {loss.data:.2f}')
+
+
+
+
 plt.plot(losses)
 plt.waitforbuttonpress()
+prev_char = '.'
+
+for i in range(int(input("Kac isim uretmek istersiniz?"))):
+    word = str()
+    while True:
+        new_char = decode_char(torch.multinomial(normalised[encode_char(prev_char)],1))
+        if new_char == '.': break
+        prev_char = new_char
+        word+=new_char
+    print(word)
