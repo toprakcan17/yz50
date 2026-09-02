@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 LEARNING_STEP_COUNT = 500
 LEARNING_STEP_SIZE = 100
 DEV_STEP_SIZE = .125
-TEMPERATURE = 0
 
 with open('/Users/macbookair/Documents/yz50/3. Hafta/isimler.txt') as names_file:
     names = names_file.read().splitlines()
@@ -21,8 +20,9 @@ def split_dataset(n):
     return split
 
 dataset = split_dataset(names)
-chars = sorted(list(set(''.join(names))))
+chars = sorted(list(set(''.join(names)))) 
 chars.append('.')
+
 
 counts = torch.zeros((len(chars)**2, len(chars)), dtype=torch.int16)
 
@@ -72,7 +72,7 @@ def train_model(x,y,weights, step_size, step_count):
         weights.data -= weights.grad * step_size
         losses.append(loss.data)
         print(f'Step: {i+1} - Loss: {loss.data:.2f}')
-    return weights
+    return weights 
 
 def tune_smoothing(x,y,weights,step_size):
     smoothing = 0
@@ -85,7 +85,7 @@ def tune_smoothing(x,y,weights,step_size):
         smoothing+=step_size
 
 def generate_word(weights,smoothing):
-    prev_chars = '..' 
+    prev_chars = '..'
     word = ''
     while True:
         probs = forward_pass(torch.tensor([encode_two_chars(prev_chars)]), weights, smoothing=smoothing)
