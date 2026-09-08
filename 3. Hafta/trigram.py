@@ -20,7 +20,7 @@ def split_dataset(n):
     return split
 
 dataset = split_dataset(names)
-chars = sorted(list(set(''.join(names)))) 
+chars = sorted(list(set(''.join(names))))
 chars.append('.')
 
 
@@ -37,7 +37,7 @@ def load_data(words):
     ys=[]
     char_count = 0
     for i in words:
-        i = f'..{i}.'
+        i = f'..{i}.' 
         for j,k in enumerate(i[:-2]):
             next_char = i[j+2]
             prev_char = i[j+1]
@@ -97,5 +97,5 @@ trained_model = train_model(xtrain,ytrain,W,LEARNING_STEP_SIZE,LEARNING_STEP_COU
 smoothing = tune_smoothing(xdev,ydev,trained_model,DEV_STEP_SIZE)
 loss = compute_loss(forward_pass(xtest,trained_model,smoothing=smoothing),ytest).data
 print(f'Loss: {loss}')
-for i in range(15):
+for i in range(55):
     print(generate_word(trained_model,smoothing))
