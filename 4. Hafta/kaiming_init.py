@@ -51,10 +51,11 @@ ytest = torch.tensor(ytest)
 g = torch.Generator().manual_seed(2147483647)
 
 l1_size = 100
-W1 = torch.randn(dims*block_size, l1_size, generator=g)
-B1 = torch.randn(l1_size, generator=g)
-W2 = torch.randn(l1_size, len(chars), generator=g)
-B2 = torch.randn(len(chars), generator=g)
+
+W1 = torch.randn(dims*block_size, l1_size, generator=g) * ((5/3)/(dims*block_size)) **0.5
+B1 = torch.randn(l1_size, generator=g) * 0.01
+W2 = torch.randn(l1_size, len(chars), generator=g) * 0.01
+B2 = torch.randn(len(chars), generator=g) * 0.01
 params = [embedding_matrix, W1, B1, W2, B2]
 for i in params: i.requires_grad = True
 
@@ -63,7 +64,7 @@ def forward_pass(embd):
     logits = act1 @ W2 + B2
     return logits
 
-step_count = 200000
+step_count = 20000
 lre = torch.linspace(-3,0,step_count)
 lr = 10**lre
 lr_stats = []
@@ -71,6 +72,8 @@ loss_stats = []
 print(f"Parametre sayisi: {sum(p.nelement() for p in params)}")
     
 batch_size = 256
+
+
 for step in range(step_count):
     idx = torch.randint(0, xtr.shape[0], (batch_size,), generator=g)
     idx_dev = torch.randint(0, xval.shape[0], (batch_size,), generator=g)
@@ -80,11 +83,15 @@ for step in range(step_count):
 
     emb_dev = embedding_matrix[xval[idx_dev]]
     emb_flattened_dev = emb_dev.view(batch_size, block_size*dims)
+    if step==0:
+        with torch.no_grad():
+            plt.hist(torch.tanh(emb_flattened @ W1 + B1))
+            plt.show()
     logits = forward_pass(emb_flattened)
     loss = torch.nn.functional.cross_entropy(logits, ytr[idx])
     with torch.no_grad():
         logits_dev = forward_pass(emb_flattened_dev)
-        devloss = torch.nn.functional.cross_entropy(logits, yval[idx_dev])
+        devloss = torch.nn.functional.cross_entropy(logits_dev, yval[idx_dev])
     for i in params: i.grad = None
     loss.backward()
     for i in params:
@@ -95,16 +102,18 @@ for step in range(step_count):
 model_loss = torch.nn.functional.cross_entropy(forward_pass(embedding_matrix[xtest].view(-1, block_size*dims)), ytest)
 print("Loss:", model_loss.item())
 
+
 plt.plot(loss_stats)
 plt.show()
 
+"""
 plt.figure(figsize=(8,8))
 plt.scatter(embedding_matrix[:,0].data, embedding_matrix[:,1].data, s=200)
 for i in range(embedding_matrix.shape[0]):
     plt.text(embedding_matrix[i,0].item(), embedding_matrix[i,1].item(), decode(i), ha="center", va="center", color="white")
 plt.grid('minor')
 plt.show()
-
+"""
 for _ in range(10):
     ctx = '.'*block_size
     word = ""
