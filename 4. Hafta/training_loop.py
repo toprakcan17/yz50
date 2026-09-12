@@ -45,7 +45,7 @@ embedding_matrix = torch.randn(len(chars), dims)
 emb = embedding_matrix[x]
 emb_flattened = emb.view(len(x), block_size*dims)
 
-l1_size = 500
+l1_size = 1000
 W1 = torch.randn(emb_flattened.shape[1], l1_size)
 B1 = torch.randn(l1_size)
 W2 = torch.randn(l1_size, len(chars))
@@ -58,12 +58,12 @@ def forward_pass():
     return logits
 
 
-lre = torch.linspace(-3,0,1000)
+lre = torch.linspace(-3,0,10000)
 lr = 10**lre
 lr_stats = []
 loss_stats = []
-
-for step in range(1000):
+print(f"Parametre sayisi: {sum(p.nelement() for p in params)}")
+"""for step in range(1000):
     idx = torch.randint(0, 256, (256,))
 
     emb = embedding_matrix[x[idx]]
@@ -76,7 +76,20 @@ for step in range(1000):
     for i in params:
         i.data -= i.grad * 0.1 # lr[step]
     lr_stats.append(lr[step])
-    loss_stats.append(loss.item())
+    loss_stats.append(loss.item())"for step in range(1000):
+    idx = torch.randint(0, 256, (256,))
+
+    emb = embedding_matrix[x[idx]]
+    emb_flattened = emb.view(256, block_size*dims)
+
+    logits = forward_pass()
+    loss = torch.nn.functional.cross_entropy(logits, y[idx])
+    for i in params: i.grad = None
+    loss.backward()
+    for i in params:
+        i.data -= i.grad * 0.1 # lr[step]
+    lr_stats.append(lr[step])
+    loss_stats.append(loss.item())"""
     
 for step in range(1000):
     idx = torch.randint(0, x.shape[0], (256,))
@@ -89,10 +102,10 @@ for step in range(1000):
     for i in params: i.grad = None
     loss.backward()
     for i in params:
-        i.data -= i.grad * 0.1 # lr[step]
+        i.data -= i.grad * 0.01 # lr[step] # 
     lr_stats.append(lr[step])
     loss_stats.append(loss.item())
     
-# plt.plot(lr_stats, loss_stats)
+#plt.plot(lr_stats, loss_stats)
 plt.plot(loss_stats)
 plt.pause(10)

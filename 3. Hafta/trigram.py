@@ -6,7 +6,7 @@ LEARNING_STEP_COUNT = 500
 LEARNING_STEP_SIZE = 100
 DEV_STEP_SIZE = .125
 
-with open('/Users/macbookair/Documents/yz50/3. Hafta/isimler.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
     names = [name for i in names for name in i.split()]
 

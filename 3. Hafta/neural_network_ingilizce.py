@@ -3,7 +3,7 @@ from torch.nn.functional import one_hot
 import matplotlib.pyplot as plt
 
 counts = torch.zeros((27,27), dtype=torch.int16)
-with open('/Users/macbookair/Documents/yz50/3. Hafta/names.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
 
 chars = sorted(list(set(''.join(names))))
