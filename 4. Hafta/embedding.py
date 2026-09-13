@@ -1,6 +1,6 @@
 import torch
 
-with open('/Users/macbookair/Documents/yz50/4. Hafta/names.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/4. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
 
 chars = sorted(list(set(''.join(names))))

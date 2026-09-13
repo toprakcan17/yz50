@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 
 
-with open('/Users/toprak/Documents/yz50/4. Hafta/names.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt') as names_file:
     names = names_file.read().splitlines()
 
 chars = sorted(list(set(''.join(names))))
@@ -40,7 +40,7 @@ for a, dset in enumerate(dataset):
             y.append(i[j+block_size])
 
 
-embedding_matrix = torch.randn(len(chars), dims)
+
 xtr = torch.tensor(xtr)
 ytr = torch.tensor(ytr)
 xval = torch.tensor(xval)
@@ -51,7 +51,7 @@ ytest = torch.tensor(ytest)
 g = torch.Generator().manual_seed(2147483647)
 
 l1_size = 100
-
+embedding_matrix = torch.randn(len(chars), dims, generator=g)
 W1 = torch.randn(dims*block_size, l1_size, generator=g) * ((5/3)/(dims*block_size)) **0.5
 B1 = torch.randn(l1_size, generator=g) * 0.01
 W2 = torch.randn(l1_size, len(chars), generator=g) * 0.01
