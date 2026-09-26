@@ -30,13 +30,13 @@ class Linear:
         self.w = torch.randn((fan_in, fan_out)) * torch.sqrt(torch.tensor((2/fan_in)))
         self.b = (torch.zeros(fan_out) if bias else None)
     def __call__(self, ins):
-        if self.b: self.out = ins @ self.w + self.b
+        if self.b is not None: self.out = ins @ self.w + self.b
         else: self.out = ins @ self.w
         return self.out
     def params(self):
         return [self.w] + ([] if self.b is None else [self.b])
 class BatchNorm1d:
-    def __init__(self, dim, m=0.1, training=True):
+    def __init__(self, dim, m=0.1, training=False):
         self.eps = 1e-5
         self.m = m
         self.training = training
@@ -78,16 +78,21 @@ class Embedding:
         return [self.w]
 
 class Flatten:
+    def __init__(self, n):
+        self.n = n
     def __call__(self, emb):
-        self.out = emb.view(emb.shape[0], -1)
+        emb = emb.view(emb.shape[0], -1, self.n*emb.shape[2])
+        if emb.shape[1] == 1: emb = torch.squeeze(emb)
+        self.out = emb
         return self.out
     def params(self): return []
 
 class Sequential:
     def __init__(self, layers):
         self.layers = layers
-    def __call__(self, x):
+    def __call__(self, x, training=False):
         for layer in self.layers:
+            if layer.__class__ == BatchNorm1d: layer.training = training
             x = layer(x)
         self.out = x
         return self.out
@@ -119,16 +124,21 @@ xtr, ytr, xval, yval, xtest, ytest = map(
 
 
 l1_size = 100
-dims = 10
 
 model = Sequential([
     Embedding(len(chars), dims),
-    Flatten(),
-    Linear(block_size * dims, l1_size),
-    BatchNorm1d(l1_size),
-    Tanh(),
+    Flatten(2), Linear(dims * 2, l1_size), BatchNorm1d(l1_size), Tanh(), 
+    Flatten(2), Linear(l1_size * 2, l1_size), BatchNorm1d(l1_size), Tanh(),
+    Flatten(2), Linear(l1_size * 2, l1_size), BatchNorm1d(l1_size), Tanh(),
     Linear(l1_size, len(chars))
 ])
+    # Flatten ile batch_size x block size x embedding_size olan tensorumuzu iki karakter olacak sekilde view yapiyoruz. 
+    # 4. haftada bunlari iki boyutlu bir tensore donusturuyorduk ancak bu hafta yaptigimiz sey ardisik karakterleri birbirine ekleyip 
+    # ilk basta block size olan 2. boyutu block size / 2 yani 4 karakter grubuna donusturuyoruz. 
+    # sonrasinda forward pass batchnorm ve tanh yapiyoruz onceki haftalardaki gibi. cikan sonucun 2. boyutu ilk giren matrisin 2. boyutunun yarisi yani 8/2=4 oluyor
+    # bunu 3 kere tekrarladigimizda 2. boyutun sekli 8/2**3 = 1 oluyor. bunu da squeeze fonksiyonu ile yok ediyoruz ve
+    # linear katmandan gecirince logitsleri elde ediyoruz
+
 
 steps = 20000
 batch_size = 256
@@ -145,7 +155,7 @@ for step in range(steps):
     idx = torch.randint(0,xtr.shape[0], (batch_size,))
     batch = (xtr[idx], ytr[idx])
 
-    logits = model(batch[0])
+    logits = model(batch[0], training=True)
     loss = F.cross_entropy(logits, batch[1])
     for param in parameters: param.grad = None
     loss.backward()
@@ -157,10 +167,14 @@ for step in range(steps):
 
     loss_stats.append(torch.log10(loss).item())
 
-loss = F.cross_entropy(model(xtest), ytest)
+for i in model.layers:
+    print(i.__class__.__name__, i.out.shape)
+
+loss = F.cross_entropy(model(xtest, training=False), ytest)
 print(f'Test loss: {loss.item():.4f}')
 
 plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1))
 plt.show()
 
-# LOSS: 2.12
+# Duzeltmeden once loss: 2.0619
+# Dim'ler duzeltildikten sonra loss: 2.0543

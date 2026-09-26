@@ -46,10 +46,7 @@ class BatchNorm1d:
         self.running_var = torch.ones(dim)
     def __call__(self, x):
         if self.training:
-            if x.ndim == 2:
-                dim = 0
-            elif x.ndim == 3:
-                dim = (0,1)
+            dim = 0
             mean = x.mean(dim, keepdim=True)
             var = x.var(dim, keepdim=True)
         else: mean = self.running_mean; var = self.running_var
