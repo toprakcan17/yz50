@@ -78,7 +78,7 @@ loss_stats = []
 print(f"Parametre sayisi: {sum(p.nelement() for p in params)}")
     
 batch_size = 256
-m = 0.05
+m = 0.1
 
 for step in range(step_count):
     idx = torch.randint(0, xtr.shape[0], (batch_size,), generator=g)

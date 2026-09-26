@@ -116,7 +116,7 @@ for step in range(step_count):
     if step==0:
         grad_logprobs = torch.zeros_like(logprobs)
         grad_logprobs[range(batch_size), ytr[idx]] = -batch_size**-1
-        grad_probs = grad_logprobs/probs
+        grad_probs = grad_logprobs*probs**-1
         grad_logits_exp = logits_exp_sum**-1 * grad_probs
         grad_counts_sum_inv = (logits_exp * grad_probs).sum(dim=1, keepdim=True)
         grad_counts_sum = grad_counts_sum_inv*(-logits_exp_sum**-2)
@@ -131,7 +131,6 @@ for step in range(step_count):
         grad_sqrt_var = grad_inv_sqrt_var*-sqrt_var**-2
         grad_var = grad_sqrt_var * sqrt_var * 1/2 * var**-1
         grad_mean = -grad_diff.sum(dim=0, keepdim=True)
-        print(mean.shape, diff.shape, h.shape)
         grad_h = grad_diff + ((batch_size**-1)*grad_mean)*torch.ones_like(h)+grad_var * 2 * diff / (batch_size-1)
         grad_w1 = emb_flattened.T @ grad_h
         grad_b1 = grad_h.sum(dim=0, keepdim=False)

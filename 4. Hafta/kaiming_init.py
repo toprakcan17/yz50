@@ -53,9 +53,9 @@ g = torch.Generator().manual_seed(2147483647)
 l1_size = 100
 embedding_matrix = torch.randn(len(chars), dims, generator=g)
 W1 = torch.randn(dims*block_size, l1_size, generator=g) * ((5/3)/(dims*block_size)) **0.5
-B1 = torch.randn(l1_size, generator=g) * 0.01
-W2 = torch.randn(l1_size, len(chars), generator=g) * 0.01
-B2 = torch.randn(len(chars), generator=g) * 0.01
+B1 = torch.randn(l1_size, generator=g)  * 0.01
+W2 = torch.randn(l1_size, len(chars), generator=g)  * 0.01
+B2 = torch.randn(len(chars), generator=g)  * 0.01 
 params = [embedding_matrix, W1, B1, W2, B2]
 for i in params: i.requires_grad = True
 

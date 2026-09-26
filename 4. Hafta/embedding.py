@@ -3,11 +3,11 @@ import torch
 with open('/Users/toprak/Documents/yz50/4. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
 
-chars = sorted(list(set(''.join(names))))
+chars = sorted(list(set(''.join(names)))) 
 chars.append('.')
+
 def encode(char):
     return chars.index(char)
-
 def decode(index):
     return chars[index]
 def encode_str(string):
@@ -16,7 +16,7 @@ def encode_str(string):
 x,y = list(), list()
 block_size = 4
 
-for i in names[:5]:
+for i in names:
     i = f"{'.'*block_size}{i}."
     i = encode_str(i)
     for j,k in enumerate(i[:-block_size]):

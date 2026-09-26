@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 
 
-with open('/Users/toprak/Documents/yz50/4. Hafta/names.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt') as names_file:
     names = names_file.read().splitlines()
 
 chars = sorted(list(set(''.join(names))))
@@ -25,7 +25,7 @@ def encode_str(string):
 
 xtr,ytr,xval,yval,xtest,ytest = list(), list(), list(), list(), list(), list()
 block_size = 3
-dims = 10
+dims = 2
 dataset = split_dataset(names)
 for a, dset in enumerate(dataset):
     for i in dataset[a]:
@@ -63,7 +63,7 @@ def forward_pass(embd):
     logits = act1 @ W2 + B2
     return logits
 
-step_count = 200000
+step_count = 20000
 lre = torch.linspace(-3,0,step_count)
 lr = 10**lre
 lr_stats = []

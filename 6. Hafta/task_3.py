@@ -126,12 +126,18 @@ l1_size = 100
 
 model = Sequential([
     Embedding(len(chars), dims),
-    Flatten(2),
-    Linear(block_size * dims, l1_size),
-    BatchNorm1d(l1_size),
-    Tanh(),
+    Flatten(2), Linear(dims * 2, l1_size), BatchNorm1d(l1_size), Tanh(), 
+    Flatten(2), Linear(l1_size * 2, l1_size), BatchNorm1d(l1_size), Tanh(),
+    Flatten(2), Linear(l1_size * 2, l1_size), BatchNorm1d(l1_size), Tanh(),
     Linear(l1_size, len(chars))
 ])
+    # Flatten ile batch_size x block size x embedding_size olan tensorumuzu iki karakter olacak sekilde view yapiyoruz. 
+    # 4. haftada bunlari iki boyutlu bir tensore donusturuyorduk ancak bu hafta yaptigimiz sey ardisik karakterleri birbirine ekleyip 
+    # ilk basta block size olan 2. boyutu block size / 2 yani 4 karakter grubuna donusturuyoruz. 
+    # sonrasinda forward pass batchnorm ve tanh yapiyoruz onceki haftalardaki gibi. cikan sonucun 2. boyutu ilk giren matrisin 2. boyutunun yarisi yani 8/2=4 oluyor
+    # bunu 3 kere tekrarladigimizda 2. boyutun sekli 8/2**3 = 1 oluyor. bunu da squeeze fonksiyonu ile yok ediyoruz ve
+    # linear katmandan gecirince logitsleri elde ediyoruz
+
 
 steps = 20000
 batch_size = 256
@@ -159,6 +165,9 @@ for step in range(steps):
     if not step%1000: print(f'Loss: {loss.item():.4f}')
 
     loss_stats.append(torch.log10(loss).item())
+
+for i in model.layers:
+    print(i.__class__.__name__, i.out.shape)
 
 loss = F.cross_entropy(model(xtest), ytest)
 print(f'Test loss: {loss.item():.4f}')
