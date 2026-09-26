@@ -1,0 +1,5 @@
+Duz MLP model loss 4k: 2.20
+Wavenet loss (task 3) - 45k: 2.06
+Wavenet loss (bn bug duzeltilmis, task 4) - 45k: 2.05
+Wavenet loss (katmanlar genisletilmis, task 5) - 76k: 2.03
+Turkce model loss (task 6) - 77k: 1.77
