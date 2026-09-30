@@ -2,8 +2,10 @@ import torch
 import matplotlib.pyplot as plt
 
 
-with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt', encoding='utf-8') as names_file:
     names = names_file.read().splitlines()
+
+torch.set_default_device('cuda')
 
 chars = sorted(list(set(''.join(names))))
 chars.append('.')
@@ -51,11 +53,11 @@ ytest = torch.tensor(ytest)
 
 
 l1_size = 100
-embedding_matrix = torch.randn(len(chars), dims, generator=g)
-W1 = torch.randn(dims*block_size, l1_size, generator=g) * ((5/3)/(dims*block_size)) **0.5
-B1 = torch.randn(l1_size, generator=g) * 0.01
-W2 = torch.randn(l1_size, len(chars), generator=g) * 0.01
-B2 = torch.randn(len(chars), generator=g) * 0.01
+embedding_matrix = torch.randn(len(chars), dims, )
+W1 = torch.randn(dims*block_size, l1_size, ) * ((5/3)/(dims*block_size)) **0.5
+B1 = torch.randn(l1_size, ) * 0.01
+W2 = torch.randn(l1_size, len(chars), ) * 0.01
+B2 = torch.randn(len(chars), ) * 0.01
 bn_gain = torch.ones((1,l1_size)) 
 bn_bias = torch.zeros((1, l1_size))
 bn_running_var = torch.ones((1,l1_size))
@@ -81,8 +83,8 @@ batch_size = 256
 m = 0.1
 
 for step in range(step_count):
-    idx = torch.randint(0, xtr.shape[0], (batch_size,), generator=g)
-    idx_dev = torch.randint(0, xval.shape[0], (batch_size,), generator=g)
+    idx = torch.randint(0, xtr.shape[0], (batch_size,), )
+    idx_dev = torch.randint(0, xval.shape[0], (batch_size,), )
 
     emb = embedding_matrix[xtr[idx]]
     emb_flattened = emb.view(batch_size, block_size*dims)
@@ -109,6 +111,7 @@ for step in range(step_count):
         i.data -= i.grad * 0.1
     #lr_stats.append(lr[step])
     if step % 50 == 0: loss_stats.append(devloss.log10().item())
+    if step%1000 == 0: print(f'{step}/{step_count}: {loss.item()}')
 
 emb_test = embedding_matrix[xtest]
 embcat_test = emb_test.view(-1, block_size*dims)
@@ -141,7 +144,7 @@ for _ in range(10):
         bn_h = bn_gain * (h-bn_running_mean)/torch.sqrt(bn_running_var) + bn_bias
         _logits = bn_h.tanh() @ W2 + B2
         probs = torch.nn.functional.softmax(_logits)
-        new_char = torch.multinomial(probs, 1, generator=g).item()
+        new_char = torch.multinomial(probs, 1, ).item()
         if decode(new_char) == '.': break
         else: word = word+decode(new_char)
         ctx = ctx[1:]+decode(new_char)

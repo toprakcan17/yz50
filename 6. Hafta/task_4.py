@@ -6,6 +6,8 @@ import torch.nn.functional as F
 with open('/Users/toprak/Documents/yz50/3. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
 
+torch.set_default_device('cuda')
+
 chars = sorted(list(set(''.join(names))))
 print(len(chars))
 chars.append('.')
@@ -173,7 +175,7 @@ for i in model.layers:
 loss = F.cross_entropy(model(xtest, training=False), ytest)
 print(f'Test loss: {loss.item():.4f}')
 
-plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1))
+plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1).cpu())
 plt.show()
 
 # Duzeltmeden once loss: 2.0619

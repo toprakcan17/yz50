@@ -6,6 +6,8 @@ import torch.nn.functional as F
 with open('/Users/toprak/Documents/yz50/3. Hafta/names.txt') as names_file:
     names = names_file.read().splitlines()
 
+torch.set_default_device('cuda')
+
 chars = sorted(list(set(''.join(names))))
 print(len(chars))
 chars.append('.')
@@ -46,9 +48,8 @@ class BatchNorm1d:
         self.running_var = torch.ones(dim)
     def __call__(self, x):
         if self.training:
-            dim = 0
-            mean = x.mean(dim, keepdim=True)
-            var = x.var(dim, keepdim=True)
+            mean = x.mean(0, keepdim=True)
+            var = x.var(0, keepdim=True)
         else: mean = self.running_mean; var = self.running_var
         diff = x - mean
         self.out = self.bngain * (diff / torch.sqrt(var + self.eps)) + self.bnbias
@@ -169,6 +170,6 @@ for i in model.layers:
 loss = F.cross_entropy(model(xtest), ytest)
 print(f'Test loss: {loss.item():.4f}')
 
-plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1))
+plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1).cpu())
 plt.show()
 

@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
 
-with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt') as names_file:
+with open('/Users/toprak/Documents/yz50/3. Hafta/isimler.txt', encoding='utf-8') as names_file:
     names = names_file.read().splitlines()
 
+torch.set_default_device('cuda')
+
 chars = sorted(list(set(''.join(names))))
-print(len(chars))
 chars.append('.')
 def split_dataset(n):
     train = []
@@ -141,7 +142,7 @@ model = Sequential([
 
 
 steps = 20000
-batch_size = 256
+batch_size = 32
 lr = 0.1
 parameters =  model.params()
 
@@ -163,15 +164,22 @@ for step in range(steps):
     for param in parameters:
         param.data -= lr*param.grad
 
-    if not step%1000: print(f'Loss: {loss.item():.4f}')
-
     loss_stats.append(torch.log10(loss).item())
+    if not step%1000: print(f'{step}/{steps}: {loss.item():.3f}')
 
-for i in model.layers:
-    print(i.__class__.__name__, i.out.shape)
+for i in range(10):
+    word = ''
+    ctx = f'{"."*block_size}'
+    while True:
+        logits = model(torch.tensor([encode_str(ctx)]))
+        probs = F.softmax(logits, dim=1)
+        next_char = torch.multinomial(probs, 1).item()
+        if decode(next_char) == '.': break
+        else: ctx = ctx[1:] + decode(next_char); word = word + decode(next_char)
+    print(word)
 
 loss = F.cross_entropy(model(xtest, training=False), ytest)
 print(f'Test loss: {loss.item():.4f}')
 
-plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1))
+plt.plot(torch.tensor(loss_stats).view(-1, 1000).mean(1).cpu())
 plt.show()
