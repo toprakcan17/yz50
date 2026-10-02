@@ -1,1 +1,2 @@
-Bigram modeli (task 1) loss: 2.67
+Bigram modeli (task 1) val loss: 2.55
+Self attention (task 4) val loss: 2.45

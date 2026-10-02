@@ -21,6 +21,8 @@ def decode(list):
 
 block_size = 8
 batch_size = 4
+embedding_dims = 32
+head_size = 16
 
 torch.manual_seed(1234)
 
@@ -35,12 +37,38 @@ def get_batch(batchsize, blocksize, data):
     y = torch.stack([torch.tensor(encode(data[i+1:i+blocksize+1])) for i in idx])
     return x,y
 
+class Head(nn.Module):
+    def __init__(self, head_size):
+        super().__init__()
+        self.key = nn.Linear(embedding_dims, head_size, bias=False)
+        self.value = nn.Linear(embedding_dims, head_size, bias=False)
+        self.query = nn.Linear(embedding_dims, head_size, bias=False)
+        self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+    def forward(self, ins):
+        k = self.key(ins)
+        q = self.query(ins)
+        wei = q @ k.transpose(-2, -1)
+        wei = wei * head_size **-0.5
+        wei = wei.masked_fill(self.tril[:ins.shape[1], :ins.shape[1]] == 0, float('-inf')) 
+        wei = F.softmax(wei, dim=-1)
+        v = self.value(ins)
+        out = wei @ v
+        return out
+
+
 class BigramLanguageModel(nn.Module):
     def __init__(self, vocab_size):
         super().__init__()
-        self.embedding_table = nn.Embedding(vocab_size, vocab_size)
+        self.token_embedding_table = nn.Embedding(vocab_size, embedding_dims)
+        self.positional_encoding = nn.Embedding(block_size, embedding_dims)
+        self.sa_head = Head(head_size)
+        self.lm_head = nn.Linear(head_size, len(chars))
     def forward(self, idx, targets=None):
-        logits = self.embedding_table(idx)
+        token_embeddings = self.token_embedding_table(idx)
+        pos_embeddings = self.positional_encoding(torch.arange(idx.shape[1]))
+        x = token_embeddings + pos_embeddings
+        x = self.sa_head(x)
+        logits = self.lm_head(x)
         if targets is not None: 
             B,T,C = logits.shape
             logits = logits.view(B*T, C)
@@ -51,7 +79,8 @@ class BigramLanguageModel(nn.Module):
             return logits, None
     def generate(self, idx, max_new_tokens):
         for _ in range(max_new_tokens):
-            logits, loss = self(idx)
+            idx_cond = idx[:, -block_size:]
+            logits, loss = self(idx_cond)
             logits = logits[:, -1, :]
             probs = F.softmax(logits, dim=1)
             next_idx = torch.multinomial(probs, num_samples=1)
@@ -81,4 +110,5 @@ for _ in range(5000):
     _, loss = model(batch[0], batch[1])
     loss_val += loss.item()
 print(f'val loss: {loss_val/5000}')
+# print(f'val loss: {model(xval.view(-1, 8), yval.view(-1, 8))[1]}')
 
