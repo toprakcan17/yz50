@@ -1,2 +1,4 @@
 Bigram modeli (task 1) val loss: 2.55
+Self attention (task 3, ciktilar block size'in karekokune bolunmeden): 2.47
 Self attention (task 4) val loss: 2.45
+Tril maskesi olmadan val loss (task 5): 0.39 - Hatali olcum, tril maskesi yokken decoder modeller calisamazlar 

@@ -50,18 +50,11 @@ class Head(nn.Module):
         k = self.key(ins)
         q = self.query(ins)
         wei = q @ k.transpose(-2, -1)
-        print(wei)
-        wei_norm = wei * head_size **-0.5
-        wei_norm = wei_norm.masked_fill(self.tril[:ins.shape[1], :ins.shape[1]] == 0, float('-inf')) 
-        wei_norm = F.softmax(wei_norm, dim=-1)
+        wei = wei * head_size **-0.5
+        wei = F.softmax(wei, dim=-1)
         v = self.value(ins)
-        out = wei_norm @ v
-        if val_step == 4999:
-            wei_raw = wei
-            wei_raw =  wei_raw.masked_fill(self.tril[:ins.shape[1], :ins.shape[1]] == 0, float('-inf')) 
-            wei_raw = F.softmax(wei_raw, dim=-1)
-            print(wei_raw[0][-2:], '\n\n\n\n\n', wei_norm[0][-2:])
-
+        out = wei @ v
+        if val_step == 4999: print(out[0])
         return out
 
 
@@ -97,7 +90,7 @@ class BigramLanguageModel(nn.Module):
         return idx
 
 model = BigramLanguageModel(len(chars))
-batch = get_batch(batch_size, block_size ,train_data)
+batch = get_batch(4,8,train_data)
 
 optim = torch.optim.AdamW(model.parameters(), lr=1e-3)
 
@@ -119,8 +112,8 @@ for _ in range(5000):
     _, loss = model(batch[0], batch[1])
     loss_val += loss.item()
     val_step += 1
-print(f'val loss: {loss_val/5000}')
 
+print(f'val loss: {loss_val/5000}')
 
 ctx = torch.zeros(1,1, dtype=torch.long)
 print(decode(model.generate(ctx, 1000)[0].tolist()))
