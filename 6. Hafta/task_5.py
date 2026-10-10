@@ -143,7 +143,7 @@ model = Sequential([
 
 
 steps = 20000
-batch_size = 256
+batch_size = 32
 lr = 0.1
 parameters =  model.params()
 
