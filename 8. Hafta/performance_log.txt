@@ -1,0 +1,7 @@
+tek head attention (gecen hafta): 2.45
+task1 (multi head attention): 2.34
+task2 (sadece feedforward): 2.29
+task2 (ff + residual): 2.24
+task2 (tek block ff + residual + ln): 2.23
+task3 (dropout 0.1): 2.12
+task4 turkce model:
