@@ -3,3 +3,5 @@ FP32, batch size 4, block size 1024, derlenmis: 2957 t/s
 FP32, batch size 4, block size 1024, derlenmis, flash attention: 3515 t/s
 FP32, batch size 4, block size 1024, derlenmis, flash attention, vocab size 50304'e yuvarlanmis: 3535 t/s
 FP16, batch size 4, block size 1024: 12831 t/s
+
+GPU: T4 16GB VRAM
